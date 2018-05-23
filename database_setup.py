@@ -1,5 +1,6 @@
 import os
 import sys
+import sqlite3 # needed??
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -8,30 +9,30 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
     email = Column(String(80), nullable=False)
 
 class Room(Base):
-    __tablename__ = 'room'
+    __tablename__ = 'rooms'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship(User)
 
 class Item(Base):
-    __tablename__ = 'item'
+    __tablename__ = 'items'
 
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     category = Column(String(250))
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship(User)
-    room_id = Column(Integer, ForeignKey('room.id'))
+    room_id = Column(Integer, ForeignKey('rooms.id'))
     room = relationship(Room)
 
 @property

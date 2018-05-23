@@ -1,21 +1,22 @@
 from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Room, Item, User
-# TODO: add login session method to tie in OAuth
+# TODO: add login session method to tie in OAuth, maybe csrf protection
 
-app = Flask(__name__, template_folder='./templates')
+app = Flask(__name__)
 
-engine = create_engine('sqlite:///ItemCatalog.db')
+engine = create_engine('sqlite:///useritemcatalog.db', connect_args={'check_same_thread':False})
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-rooms = ['Living room', 'Dining Room', 'Bedroom', 'Bathroom']
-items = [{'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}]
-
-item = {'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}
+# rooms = [{'id': 1, 'name': 'Living room'}, {'id': 2, 'name': 'Dining Room'}, {'id': 3, 'name': 'Bedroom'}, {'id': 4, 'name': 'Bathroom'}]
+# items = [{'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}]
+# item = {'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}
+rooms = session.query(Room).all()
 
 @app.route('/')
 def home():
@@ -23,35 +24,51 @@ def home():
 
 @app.route('/rooms')
 def showRooms():
+    rooms = session.query(Room).all()
     return render_template('rooms.html', rooms=rooms)
+
+@app.route('/rooms/new', methods=['GET', 'POST'])
+def newRoom():
+    if request.method == 'POST':
+        newRoom = Room(name=request.form['name'], id=request.form['id'])
+        session.add(newRoom)
+        session.commit()
+    return render_template('newroom.html')
 
 @app.route('/rooms/<int:room_id>/edit', methods=['POST', 'GET'])
 def editRoom(room_id):
-    pass
+    return "This page will have a form to edit rooms"
 
-@app.route('/rooms/<int:room_id>/delete')
+@app.route('/rooms/<int:room_id>/delete', methods=['POST', 'GET'])
 def deleteRoom(room_id):
-    pass
+    if request.method == 'POST':
+        roomToDelete = session.query(Room).filter_by(id=room_id).one()
+        session.delete(roomToDelete)
+        session.commit()
+        return redirect(url_for('Room', room_id = room_id))
+    else:
+        return render_template('deleteroom.html', room_id=room_id)
 
 @app.route('/rooms/<int:room_id>/items')
+@app.route('/rooms/<int:room_id>')
 def showItems(room_id):
-    return render_template('items.html', items=items)
+    return render_template('items.html')
 
-@app.route('/rooms/<int:room_id>/items/<int:item_id>')
-def addItem(room_id):
-    pass
+@app.route('/rooms/<int:room_id>/items/new', methods=['POST', 'GET'])
+def newItem(room_id):
+    return "This page has a form to add an item"
 
-@app.route('/rooms/<int:room_id>/items/<int:item_id>/edit')
+@app.route('/rooms/<int:room_id>/items/<int:item_id>/edit', methods=['POST', 'GET'])
 def editItem(room_id, item_id):
-    pass
+    return "This page will show form to edit item details"
 
-@app.route('/rooms/<int:room_id>/items/<int:item_id>/delete')
+@app.route('/rooms/<int:room_id>/items/<int:item_id>/delete', methods=['POST', 'GET'])
 def deleteItem(room_id, item_id):
-    pass
+    return "This page allows users to delete an item"
 
 @app.route('/itemcatalog.json')
 def showAPI():
-    pass
+    return "Page for the JSON data for rooms/items"
 
 # Add endpoints for login?... API connection with json and database
 # render redirects/urls for login, each room, items and info in that room
