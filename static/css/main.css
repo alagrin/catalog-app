@@ -1,0 +1,9 @@
+body {
+    padding-top: 50px;
+    margin-top: 20px;
+}
+
+.roomlist ul {
+    list-style-type: none;
+}
+
