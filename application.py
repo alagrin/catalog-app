@@ -16,6 +16,7 @@ session = DBSession()
 # rooms = [{'id': 1, 'name': 'Living room'}, {'id': 2, 'name': 'Dining Room'}, {'id': 3, 'name': 'Bedroom'}, {'id': 4, 'name': 'Bathroom'}]
 # items = [{'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}]
 # item = {'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}
+
 rooms = session.query(Room).all()
 
 @app.route('/')
@@ -33,19 +34,31 @@ def newRoom():
         newRoom = Room(name=request.form['name'], id=request.form['id'])
         session.add(newRoom)
         session.commit()
-    return render_template('newroom.html')
+        return redirect(url_for('showRooms'))
+    else:
+        return render_template('newroom.html')
 
 @app.route('/rooms/<int:room_id>/edit', methods=['POST', 'GET'])
 def editRoom(room_id):
-    return "This page will have a form to edit rooms"
+    roomToEdit = session.query(Room).filter_by(id=room_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            roomToEdit.name = request.form['name']
+        if request.form['id']:
+            roomToEdit.id = request.form['id']
+        session.add(roomToEdit)
+        session.commit()
+        return redirect(url_for('showRooms'))
+    else:
+        return render_template('editroom.html', room_id=room_id, room = roomToEdit)
 
 @app.route('/rooms/<int:room_id>/delete', methods=['POST', 'GET'])
 def deleteRoom(room_id):
+    roomToDelete = session.query(Room).filter_by(id=room_id).one()
     if request.method == 'POST':
-        roomToDelete = session.query(Room).filter_by(id=room_id).one()
         session.delete(roomToDelete)
         session.commit()
-        return redirect(url_for('Room', room_id = room_id))
+        return redirect(url_for('showRooms'))
     else:
         return render_template('deleteroom.html', room_id=room_id)
 

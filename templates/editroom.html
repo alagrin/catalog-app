@@ -1,0 +1,19 @@
+<html>
+
+<body>
+    <h1>Edit this room</h1>
+    <form method="POST" action='{{url_for('editRoom', room_id=room_id) }}'>
+        <input type="text" name="name" placeholder='{{room.name}}'>
+        <input type="number" name="id" placeholder='{{room.id}}'>
+        <select name="categories" id="category">
+            <option value="living room">Living Room</option>
+            <option value="dining room">Dining Room</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="bedroom">Bedroom</option>
+            <option value="bathroom">Bathroom</option>
+        </select>
+        <input class="btn" type="submit" value="Edit">
+    </form>
+</body>
+
+</html>
