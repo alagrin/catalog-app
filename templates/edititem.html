@@ -1,0 +1,13 @@
+<html>
+
+<body>
+    <h1>Edit this item</h1>
+    <form method="POST" action='{{url_for('editItem', room_id=room_id, item_id=item_id) }}'>
+        <input type="text" name="name" placeholder='{{item.name}}'>
+        <input type="text" name="description" placeholder='{{item.description}}'>
+        <input type="text" name="category" placeholder="category">
+        <input class="btn" type="submit" value="Edit">
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+<html>
+
+<body>
+  <h1>Add item</h1>
+  <form method="POST" action='{{ url_for('newItem', room_id=room_id) }}'>
+    <input type="text" name="name" placeholder="Name">
+    <input type="text" name="description" placeholder="description">
+    <input type="text" name="category" placeholder="category">
+    <input class="btn" type="submit" value="Add">
+  </form>
+</body>
+
+</html>

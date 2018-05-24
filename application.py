@@ -14,10 +14,11 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # rooms = [{'id': 1, 'name': 'Living room'}, {'id': 2, 'name': 'Dining Room'}, {'id': 3, 'name': 'Bedroom'}, {'id': 4, 'name': 'Bathroom'}]
-# items = [{'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}]
+#items = [{'id': 1, 'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}, {'id': 2, 'name': 'test', 'category': 'furnituretest', 'description': 'An item to test on'}]
 # item = {'name': 'couch', 'category': 'furniture', 'description': 'An item to sit on'}
 
-rooms = session.query(Room).all()
+# need database to handle id number by order???
+# rooms = session.query(Room).all()
 
 @app.route('/')
 def home():
@@ -65,15 +66,35 @@ def deleteRoom(room_id):
 @app.route('/rooms/<int:room_id>/items')
 @app.route('/rooms/<int:room_id>')
 def showItems(room_id):
-    return render_template('items.html')
+    items = session.query(Item).filter_by(id=room_id).all()
+    return render_template('items.html', items=items)
 
 @app.route('/rooms/<int:room_id>/items/new', methods=['POST', 'GET'])
 def newItem(room_id):
-    return "This page has a form to add an item"
+    items = session.query(Item).all()
+    if request.method == 'POST':
+        itemToAdd = Item(name=request.form['name'], category=request.form['category'], description=request.form['description'])
+        session.add(itemToAdd)
+        session.commit()
+        return redirect(url_for('showItems', room_id=room_id, items=items))
+    else:
+        return render_template('newitem.html', room_id = room_id)
 
 @app.route('/rooms/<int:room_id>/items/<int:item_id>/edit', methods=['POST', 'GET'])
 def editItem(room_id, item_id):
-    return "This page will show form to edit item details"
+    itemToEdit = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            itemToEdit.name = request.form['name']
+        if request.form['description']:
+            itemToEdit.description = request.form['description']
+        if request.form['category']:
+            itemToEdit.category = request.form['category']
+        session.add(itemToEdit)
+        session.commit()
+        return redirect(url_for('showItems', room_id=room_id))
+    else:
+        return render_template('editItem.html', room_id=room_id, item_id=item_id, item=itemToEdit)
 
 @app.route('/rooms/<int:room_id>/items/<int:item_id>/delete', methods=['POST', 'GET'])
 def deleteItem(room_id, item_id):

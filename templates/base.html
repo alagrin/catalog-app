@@ -13,11 +13,33 @@
 </head>
 
 <body>
+    <!-- <script>
+                window.fbAsyncInit = function() {
+                  FB.init({
+                    appId      : '{209350376515957}',
+                    cookie     : true,
+                    xfbml      : true,
+                    version    : '{latest-api-version}'
+                  });
+                    
+                  FB.AppEvents.logPageView();   
+                    
+                };
+              
+                (function(d, s, id){
+                   var js, fjs = d.getElementsByTagName(s)[0];
+                   if (d.getElementById(id)) {return;}
+                   js = d.createElement(s); js.id = id;
+                   js.src = "https://connect.facebook.net/en_US/sdk.js";
+                   fjs.parentNode.insertBefore(js, fjs);
+                 }(document, 'script', 'facebook-jssdk'));
+              </script> -->
     <div class="container">
         <div class="header">
             <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="container">
                     <div class="navbar-header">
+                        <a href="/">Home</a>
                         <a class="navbar-brand" href="{{ url_for('showRooms')}}">My Rooms</a>
                     </div>
                     <button class="btn btn-info" id="login" type="submit" name="Login">Login</button>
@@ -36,6 +58,7 @@
             {% block container %}{% endblock %}
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
