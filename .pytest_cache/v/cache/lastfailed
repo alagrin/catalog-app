@@ -1,0 +1,4 @@
+{
+  "test.py::test_new_item": true, 
+  "test/test.py": true
+}

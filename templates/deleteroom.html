@@ -3,7 +3,7 @@
 <body>
     <h1>Delete room</h1>
     <form method="POST" action="{{ url_for('deleteRoom', room_id=room_id) }}">
-        <h3>Do you want to delete the room ?</h3>
+        <h3>Do you want to delete {{room.name}} ?</h3>
         <input class="btn" type="submit" value="Delete">
     </form>
 </body>

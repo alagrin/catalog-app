@@ -1,0 +1,11 @@
+<html>
+
+<body>
+    <h1>Delete item</h1>
+    <form method="POST" action="{{ url_for('deleteItem', room_id=room_id, item_id=item_id) }}">
+        <h3>Do you want to delete {{item.name}} ?</h3>
+        <input class="btn" type="submit" value="Delete">
+    </form>
+</body>
+
+</html>

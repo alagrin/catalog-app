@@ -1,6 +1,5 @@
 import os
 import sys
-import sqlite3 # needed??
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -14,22 +13,26 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
     email = Column(String(80), nullable=False)
+    password = Column(String(80), nullable=False)
 
 class Room(Base):
     __tablename__ = 'rooms'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship(User)
+    # item_id = Column(Integer, ForeignKey('items.id'))
+    # items = relationship("Item")
+    # item = relationship("Item", back_populates="room")
+    # user_id = Column(Integer, ForeignKey('users.id'))
+    # user = relationship(User)
 
-@property
-def serialize(self):
-    """Return room data in easily serializable format"""
-    return {
-        'name': self.name,
-        'id': self.id,
-    }
+# @property
+# def serialize(self):
+#     """Return room data in easily serializable format"""
+#     return {
+#         'name': self.name,
+#         'id': self.id,
+#     }
 
 class Item(Base):
     __tablename__ = 'items'
@@ -38,8 +41,8 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     category = Column(String(250))
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship(User)
+    # user_id = Column(Integer, ForeignKey('users.id'))
+    # user = relationship(User)
     room_id = Column(Integer, ForeignKey('rooms.id'))
     room = relationship(Room)
 
