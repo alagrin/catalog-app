@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
+{% block body %}
 {% block container %}
 <div class="items">
     {% for item in items %}
     <div class="well">
-        <p><a href="#">{{item.name}}</a></p>
+        <p><a href='{{url_for('editItem', room_id=room_id, item_id=item.id)}}' style="text-decoration: none">{{item.name}}</a></p>
     </div>
     {% endfor %}
 </div>
+{% endblock %}
 {% endblock %}

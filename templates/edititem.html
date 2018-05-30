@@ -1,13 +1,16 @@
-<html>
+{% extends "base.html" %}
+
+{% block title %}Edit {{item.name}}{% endblock %} 
 
 <body>
+        {% block body %}
     <h1>Edit this item</h1>
     <form method="POST" action='{{url_for('editItem', room_id=room_id, item_id=item_id) }}'>
         <input type="text" name="name" placeholder='{{item.name}}'>
         <input type="text" name="description" placeholder='{{item.description}}'>
         <input type="text" name="category" placeholder='{{item.category}}'>
-        <input class="btn" type="submit" value="Edit">
+        <input class="btn btn-success" type="submit" value="Edit">
+        <button class="btn btn-danger" name="Cancel" value="Cancel">Cancel</button>
     </form>
+    {% endblock %}
 </body>
-
-</html>

@@ -1,9 +1,9 @@
-from flask import Flask, render_template, url_for, request, redirect, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, url_for, request, redirect, flash, jsonify, session as user_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Room, Item, User
 import logging
+import os
 # TODO: add login session method to tie in OAuth, maybe csrf protection
 
 logging.basicConfig(level=logging.DEBUG)
@@ -16,18 +16,30 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-
 @app.route('/')
 def home():
-    return render_template('base.html')
+    if not user_session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return showRooms()
+
+@app.route('/login', methods=['POST'])
+def do_login():
+    if request.form['password'] == 'password' and request.form['username'] == 'admin':
+        user_session['logged_in'] = True
+    else:
+        flash('wrong password!')
+    return home()
+
+@app.route('/logout')
+def logout():
+    user_session['logged_in'] = False
+    return home()
 
 @app.route('/rooms/')
 def showRooms():
-    try:
-        rooms = session.query(Room).all()
-        return render_template('rooms.html', rooms=rooms)
-    except:
-        return 'Error, could not load rooms', 404
+    rooms = session.query(Room).all()
+    return render_template('rooms.html', rooms=rooms)
 
 @app.route('/rooms/new', methods=['GET', 'POST'])
 def newRoom():
@@ -53,6 +65,7 @@ def editRoom(room_id):
             return render_template('editroom.html', room_id=room_id, room = roomToEdit)
     except:
         return 'Could not find that room', 404
+
 @app.route('/rooms/<int:room_id>/delete', methods=['POST', 'GET'])
 def deleteRoom(room_id):
     roomToDelete = session.query(Room).filter_by(id=room_id).one()
@@ -82,7 +95,7 @@ def newItem(room_id):
 
 @app.route('/rooms/<int:room_id>/items/<int:item_id>/edit', methods=['POST', 'GET'])
 def editItem(room_id, item_id):
-    itemToEdit = session.query(Item).filter_by(id=item_id).one()
+    itemToEdit = session.query(Item).filter_by(room_id=room_id, id=item_id).one()
     if request.method == 'POST':
         if request.form['name']:
             itemToEdit.name = request.form['name']
@@ -115,4 +128,5 @@ def showAPI():
 # extendable data for suggestions later??
 
 if __name__ == '__main__':
+    app.secret_key = os.urandom(12)
     app.run(host='0.0.0.0', port=8001, debug=True)

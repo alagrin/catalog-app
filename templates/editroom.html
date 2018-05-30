@@ -4,11 +4,13 @@
 
 <body>
     {% block body %} {% block container %}
+    <div class="container edititem">
     <h1>Edit this room</h1>
     <form method="POST" action='{{url_for('editRoom', room_id=room_id) }}'>
         <input type="text" name="name" placeholder='{{room.name}}'>
-        <input class="btn" type="submit" value="Edit">
+        <input class="btn btn-info" type="submit" value="Edit">
     </form>
+    </div>
     {% endblock %} {% endblock %}
 </body>
 
