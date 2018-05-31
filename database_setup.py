@@ -13,12 +13,18 @@ class User(Base):
     email = Column(String(80), nullable=False, unique=True)
     password = Column(String(80), nullable=False, unique=True)
 
+    def __init__(self, name, email, password):
+        self.name = name
+        self.email = email
+        self.password = password
 
 class Room(Base):
     __tablename__ = 'rooms'
 
     id = Column(Integer, Sequence('item_seq'), primary_key=True)
     name = Column(String(80), nullable=False)
+    # user_id = Column(Integer, ForeignKey('users.id'))
+    # user = relationship("User", backref="rooms", cascade="all, delete")
 
 class Item(Base):
     __tablename__ = 'items'
@@ -29,6 +35,8 @@ class Item(Base):
     category = Column(String(250), nullable=False)
     room_id = Column(Integer, ForeignKey('rooms.id'))
     room = relationship("Room", backref="items", cascade="all, delete")
+    # user_id = Column(Integer, ForeignKey('users.id'))
+    # user = relationship("User", backref="items", cascade="all, delete")
 
 @property
 def serialize(self):

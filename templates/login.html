@@ -5,9 +5,55 @@
 <p>You're logged in already!</p>
 {% else %}
 <form action="/login" method="POST">
-  <input type="username" name="username" placeholder="Username">
-  <input type="password" name="password" placeholder="Password">
-  <input type="submit" value="Log in">
+    <div class="form-group">
+        <input class="form-control" type="username" name="username" placeholder="Username">
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="password" name="password" placeholder="Password">
+    </div>
+  <button class="btn btn-primary" type="submit">Log In</button>
 </form>
 {% endif %}
+<div id="signinButton">
+        <span class="g-signin"
+          data-scope="openid email"
+          data-clientid="671079066165-48ap8656ekipr5e8jekciii7vsm7s446.apps.googleusercontent.com"
+          data-redirecturi="postmessage"
+          data-accesstype="offline"
+          data-cookiepolicy="single_host_origin"
+          data-callback="signInCallback"
+          data-approvalprompt="force">
+        </span>
+      </div>
+      <div id="result"></div>
+      
+      <script>
+          function signInCallback(authresult) {
+              if (authresult['code']) {
+                  $('#signinButton').attr('style', 'display: none');
+                  // send one time use code to server, if responds
+                  // write 'login successful' to page and back to main
+                  // rooms page
+                  $.ajax({
+                      type: 'POST',
+                      url: '/gconnect?state={{STATE}}',
+                      processData: false,
+                      contentType: 'application/octet-stream; charset=utf-8',
+                      data: authresult['code'],
+                      success: function(result) {
+                          if (result) {
+                              $('#result').html('Login Successful!</br>' + result + '</br>Redirecting...')
+                              setTimeout(function() {
+                                  window.location.href = "/rooms";
+                              }, 4000);
+                          } else if (authresult['error']) {
+                              console.log('There was an error: ' + authresult['error']);
+                          } else {
+                              $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                          }
+                      }
+                  })
+              }
+          }
+      </script>
 {% endblock %}
