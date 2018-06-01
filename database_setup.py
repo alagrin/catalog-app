@@ -23,6 +23,7 @@ class Room(Base):
 
     id = Column(Integer, Sequence('item_seq'), primary_key=True)
     name = Column(String(80), nullable=False)
+    #TODO: Make sure DB user modeled correctly
     # user_id = Column(Integer, ForeignKey('users.id'))
     # user = relationship("User", backref="rooms", cascade="all, delete")
 
@@ -38,7 +39,7 @@ class Item(Base):
     # user_id = Column(Integer, ForeignKey('users.id'))
     # user = relationship("User", backref="items", cascade="all, delete")
 
-@property
+@property # go over this
 def serialize(self):
     """Return item data in easily serializable format"""
     return {

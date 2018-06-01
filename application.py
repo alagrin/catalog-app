@@ -3,7 +3,7 @@ from flask import Flask, render_template, url_for, request, redirect, flash, jso
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Room, Item, User
-import random, string, httplib2, json, requests
+import random, string, httplib2, json, requests, ConfigParser
 # import logging
 import os
 # from flask_security import Security, login_required, SQLAlchemySessionUserDatastore
@@ -25,11 +25,14 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+#TODO: Create user and get user id/ info; protect pages that require login- CUD, not R
+
 # @app.before_first_request
 # def create_user():
 #    new_user = user_datastore.create_user(email='', password='')
 #    session.commit()
 
+#TODO: Adjust for OAuth method, show welcome page that sends to login
 @app.route('/')
 def home():
     if not login_session.get('logged_in'):
@@ -37,17 +40,28 @@ def home():
     else:
         return showRooms()
 
-@app.route('/login', methods=['POST'])
+#TODO: Make sure each room/item is specific user's own via login_session['id' or 'username']
+@app.route('/login', methods=['GET', 'POST'])
 def do_login():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
-    login_session['state'] = state
+
+    valid = (string.ascii_letters, string.digits, ':*&^')
+
+    def gen_random_string(valid, length):
+        random_string = ''.join(valid) # join together members of tuple which is iterable
+        return ''.join(random.choice(random_string) for x in xrange(length)) # returns a random string w/ length chars
+    
+    state = gen_random_string(valid, 32) # set state to the result of the func
+
+    login_session['state'] = state # passing value of state to the login_session- preventing CSF attacks
+    
     # if request.form['password'] == 'password' and request.form['username'] == 'admin':
     #     login_session['logged_in'] = True
     #     flash('Logged in!')
     # else:
     #     flash('Invalid Login!')
     # return home()
+    
+
     return render_template('login.html', STATE=state)
 
 @app.route('/gconnect', methods=['POST'])
@@ -122,6 +136,11 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # user_id = getUserID(login_session['email'])
+    # if not user_id:
+    #     user_id = createUser(login_session)
+    # login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -163,7 +182,27 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-@app.route('/logout')
+# To be changed, password or picture stored?
+def createUser():
+    newUser = User(name=login_session['username'], email=login_session['email'], password=login_session['gplus_id'])
+    session.add(newUser)
+    session.commit()
+
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+@app.route('/logout') #TODO: Disconnects and shows welcome page again
 def logout():
     login_session['logged_in'] = False
     return home()
@@ -172,11 +211,11 @@ def logout():
 def showRooms():
     rooms = session.query(Room).all()
     return render_template('rooms.html', rooms=rooms)
-
+#TODO: add login_required to any new, updated, deleted room/ items
 @app.route('/rooms/new', methods=['GET', 'POST'])
 def newRoom():
     if request.method == 'POST':
-        newRoom = Room(name=request.form['name'])
+        newRoom = Room(name=request.form['name']) # will add line user_id = login_session['user_id] to Room
         session.add(newRoom)
         session.commit()
         return redirect(url_for('showRooms'))
